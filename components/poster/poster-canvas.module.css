@@ -1,0 +1,28 @@
+.wrap {
+  display: flex;
+  justify-content: center;
+  padding: 48px 24px 120px;
+  min-height: calc(100vh - 57px - 56px);
+  background: var(--paper);
+  overflow-x: auto;
+}
+
+.scaleContainer {
+  flex-shrink: 0;
+}
+
+.canvas {
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  transform-origin: top left;
+  transition: box-shadow 0.2s ease;
+}
+
+@media (max-width: 720px) {
+  .wrap {
+    padding: 20px 16px 100px;
+  }
+}

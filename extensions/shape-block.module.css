@@ -1,0 +1,356 @@
+/* .wrapper {
+  position: absolute;
+  will-change: left, top;
+}
+
+.box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  min-height: 44px;
+  max-width: 520px;
+  padding: 10px 16px;
+  border: 2px dashed var(--accent);
+  background: transparent;
+  border-radius: 10px;
+  cursor: grab;
+  box-sizing: border-box;
+  overflow: hidden;
+  will-change: transform, width, height;
+  transition: border-style 0.12s ease, box-shadow 0.15s ease;
+}
+
+.box:active {
+  cursor: grabbing;
+}
+
+.box[data-shape="circle"] {
+  border-radius: 50%;
+}
+
+.box[data-selected] {
+  border-style: solid;
+  box-shadow: var(--shadow-glow);
+}
+
+.content {
+  outline: none;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  text-align: center;
+  width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  cursor: text;
+}
+
+.content img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+Barre d'actions flottante au-dessus de la forme sélectionnée :
+   déplacer · pivoter · supprimer — chacune avec sa propre zone de clic,
+   jamais en conflit avec le texte à l'intérieur. 
+
+.moveHandle,
+.rotateHandle {
+  position: absolute;
+  top: -34px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  cursor: grab;
+  box-shadow: var(--shadow-sm);
+  animation: springIn 0.15s var(--ease-spring);
+  z-index: 3;
+}
+
+.moveHandle {
+  left: -8px;
+  cursor: move;
+}
+
+.moveHandle:hover,
+.rotateHandle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.rotateHandle {
+  left: 50%;
+}
+
+.moveHandle:active {
+  cursor: grabbing;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--canvas);
+  background: var(--danger);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  animation: springIn 0.15s var(--ease-spring);
+  z-index: 3;
+}
+
+.resize {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: var(--canvas);
+  border: 2px solid var(--accent);
+  border-radius: 3px;
+  box-shadow: var(--shadow-xs);
+  z-index: 3;
+}
+
+.resize[data-corner="nw"] {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.resize[data-corner="ne"] {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.resize[data-corner="sw"] {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.resize[data-corner="se"] {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+} */
+
+.wrapper {
+  position: absolute;
+  will-change: left, top;
+}
+
+/* overflow: visible : les poignées (coins, croix, barre d'actions) dépassent
+   volontairement du cadre. Le texte est clippé par .content. */
+.box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  min-height: 44px;
+  max-width: 520px;
+  padding: 10px 16px;
+  border: 2px dashed var(--accent);
+  background: transparent;
+  border-radius: 10px;
+  cursor: grab;
+  box-sizing: border-box;
+  overflow: visible;
+  will-change: transform, width, height;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.15s ease;
+}
+
+.box:active {
+  cursor: grabbing;
+}
+
+.box[data-shape="circle"] {
+  border-radius: 50%;
+}
+
+.box[data-selected] {
+  border-style: solid;
+  box-shadow: var(--shadow-glow);
+}
+
+.content {
+  outline: none;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  text-align: center;
+  width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  cursor: text;
+}
+
+.content img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.moveHandle,
+.rotateHandle {
+  position: absolute;
+  top: -34px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-soft);
+  cursor: grab;
+  box-shadow: var(--shadow-sm);
+  animation: springIn 0.15s var(--ease-spring);
+  z-index: 3;
+}
+
+.moveHandle {
+  left: -8px;
+  cursor: move;
+}
+
+.moveHandle:hover,
+.rotateHandle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.rotateHandle {
+  left: 50%;
+}
+
+.moveHandle:active {
+  cursor: grabbing;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--canvas);
+  background: var(--danger);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  animation: springIn 0.15s var(--ease-spring);
+  z-index: 3;
+}
+
+/* Poignées de redimensionnement (Alt, ou cercle) */
+.resize {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: var(--canvas);
+  border: 2px solid var(--accent);
+  border-radius: 3px;
+  box-shadow: var(--shadow-xs);
+  z-index: 3;
+}
+
+.resize[data-corner="nw"] {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+.resize[data-corner="ne"] {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+.resize[data-corner="sw"] {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+.resize[data-corner="se"] {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+/* Poignées d'arrondi (« croissants blancs ») : par défaut sur les coins */
+.radiusHandle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border: 2px solid var(--accent);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  z-index: 3;
+}
+
+.radiusHandle[data-corner="nw"] {
+  top: 3px;
+  left: 3px;
+  border-radius: 14px 0 0 0;
+}
+.radiusHandle[data-corner="ne"] {
+  top: 3px;
+  right: 3px;
+  border-radius: 0 14px 0 0;
+}
+.radiusHandle[data-corner="sw"] {
+  bottom: 3px;
+  left: 3px;
+  border-radius: 0 0 0 14px;
+}
+.radiusHandle[data-corner="se"] {
+  bottom: 3px;
+  right: 3px;
+  border-radius: 0 0 14px 0;
+}
+
+/* Cercle : poignées sur la diagonale (pas dans les coins du carré englobant) */
+.box[data-shape="circle"] .resize[data-corner="nw"] {
+  top: calc(14.6% - 6px);
+  left: calc(14.6% - 6px);
+}
+.box[data-shape="circle"] .resize[data-corner="ne"] {
+  top: calc(14.6% - 6px);
+  right: calc(14.6% - 6px);
+}
+.box[data-shape="circle"] .resize[data-corner="sw"] {
+  bottom: calc(14.6% - 6px);
+  left: calc(14.6% - 6px);
+}
+.box[data-shape="circle"] .resize[data-corner="se"] {
+  bottom: calc(14.6% - 6px);
+  right: calc(14.6% - 6px);
+}

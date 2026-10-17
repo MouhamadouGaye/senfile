@@ -1,0 +1,182 @@
+[
+  {
+    "id": "vRqgcUXkwy",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789930165282,
+    "attendees": [
+      {
+        "name": "MGAYE",
+        "email": "mgayeeeeee@gmail.com"
+      }
+    ]
+  },
+  {
+    "id": "Btvp90a0Pn",
+    "title": "kobe",
+    "hostName": "gaye",
+    "hostEmail": "mgayeeeeee@gmail.com",
+    "date": null,
+    "time": "21:00",
+    "duration": 30,
+    "description": "Kobe the best developer",
+    "instant": false,
+    "createdAt": 1789930363705,
+    "attendees": [
+      {
+        "name": "gaye",
+        "email": "kobeameth@gmail.ocm"
+      },
+      {
+        "name": "mouha",
+        "email": "mgayeeeeee@gmail.com"
+      }
+    ]
+  },
+  {
+    "id": "Dc7y33Z8yU",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789930448544,
+    "attendees": []
+  },
+  {
+    "id": "r4O5H77IuA",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789941330257,
+    "attendees": []
+  },
+  {
+    "id": "gUe-x_E6oH",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789941626404,
+    "attendees": []
+  },
+  {
+    "id": "7NEvVYqEIW",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789941759948,
+    "attendees": []
+  },
+  {
+    "id": "w07M6rWbk1",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789941785003,
+    "attendees": [
+      {
+        "name": "kobe",
+        "email": "kobeameth@gmail.com"
+      }
+    ]
+  },
+  {
+    "id": "enUguJkWkM",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789942254117,
+    "attendees": [
+      {
+        "name": "kobe",
+        "email": "kobeameth@gmail.com"
+      }
+    ]
+  },
+  {
+    "id": "3QAybVNrsX",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789943675161,
+    "attendees": []
+  },
+  {
+    "id": "1twuAhE8XX",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789943885500,
+    "attendees": []
+  },
+  {
+    "id": "B342p50VT6",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789944315656,
+    "attendees": []
+  },
+  {
+    "id": "K9SV75DZU6",
+    "title": "Réunion instantanée",
+    "hostName": "Organisateur",
+    "hostEmail": "instant@aperture.local",
+    "date": null,
+    "time": null,
+    "duration": 30,
+    "description": "",
+    "instant": true,
+    "createdAt": 1789945913089,
+    "attendees": []
+  }
+]

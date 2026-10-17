@@ -1,0 +1,277 @@
+/* app/editor/[id]/editorpage.module.css */
+.loading {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.wrap {
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 35;
+}
+
+.userName {
+  position: absolute;
+  top: 3px;
+  right: 12px;
+  max-width: calc(100% - 24px);
+  box-sizing: border-box;
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-weight: 400;
+  line-height: 1.4;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+  .userName {
+    right: 10px;
+    max-width: calc(100% - 20px);
+    font-size: 13px;
+  }
+}
+@media (max-width: 480px) {
+  .userName {
+    top: 4px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    font-size: 12px;
+  }
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.sideToggle {
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 7px 9px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.sideToggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.titleInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+}
+.titleInput:hover,
+.titleInput:focus {
+  background: var(--paper);
+}
+
+.readOnlyBadge {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(184, 144, 46, 0.16);
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.saveStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.spinIcon {
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.saveStatus[data-state="saving"] {
+  animation: softPulse 1.1s ease-in-out infinite;
+}
+.saveStatus[data-state="saved"] {
+  color: #2e6b52;
+  animation: savedPop 0.3s var(--ease-spring);
+}
+.saveStatus[data-state="error"] {
+  color: var(--danger);
+}
+@keyframes savedPop {
+  from {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  transition:
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+.iconBtn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: none;
+  background: var(--gradient-accent);
+  color: var(--canvas);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition:
+    opacity 0.15s ease,
+    transform 0.12s var(--ease-spring),
+    box-shadow 0.15s ease;
+}
+.shareBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  opacity: 0.95;
+}
+
+.glance {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6;
+}
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+.exportBtn:active {
+  transform: scale(0.96);
+}
+.exportBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.body {
+  display: flex;
+  align-items: flex-start;
+}
+
+/*
+ * WYSIWYG: the page is always laid out at 794 px internally and is
+ * visually scaled by the <Editor /> component (via transform: scale()).
+ * We must NOT clip it here — otherwise on narrow viewports the right
+ * half of the page would be invisible while the PDF still shows it.
+ */
+.canvasArea {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px 60px;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 720px) {
+  .sideToggle {
+    display: none;
+  }
+
+  .topbar {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .body {
+    overflow-y: auto;
+  }
+  .back {
+    font-size: 12px;
+  }
+  .titleInput {
+    font-size: 15px;
+    flex-basis: 100%;
+    order: 5;
+  }
+  .saveStatus {
+    display: none;
+  }
+  .shareBtn,
+  .exportBtn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .canvasArea {
+    padding: 0 4px 40px;
+  }
+}
