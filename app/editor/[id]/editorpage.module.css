@@ -1,58 +1,29 @@
-/* app/editor/[id]/editorpage.module.css */
 .loading {
   display: grid;
   place-items: center;
-  height: 100vh;
+  height: 100dvh;
   color: var(--muted);
   font-size: 14px;
 }
 
+/* The window never scrolls: the canvas does, so the ruler can stick to it. */
 .wrap {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--paper);
 }
 
 .topbar {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 24px;
+  gap: 12px;
+  padding: 12px 24px;
   background: var(--canvas);
   border-bottom: 1px solid var(--line);
-  position: sticky;
-  top: 0;
-  z-index: 35;
-}
-
-.userName {
-  position: absolute;
-  top: 3px;
-  right: 12px;
-  max-width: calc(100% - 24px);
-  box-sizing: border-box;
-  font-size: 14px;
-  color: var(--ink-soft);
-  font-weight: 400;
-  line-height: 1.4;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 768px) {
-  .userName {
-    right: 10px;
-    max-width: calc(100% - 20px);
-    font-size: 13px;
-  }
-}
-@media (max-width: 480px) {
-  .userName {
-    top: 4px;
-    right: 8px;
-    max-width: calc(100% - 16px);
-    font-size: 12px;
-  }
+  flex-shrink: 0;
+  z-index: 25;
 }
 
 .back {
@@ -65,24 +36,35 @@
   white-space: nowrap;
 }
 
-.sideToggle {
+.sideToggle,
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   border: 1px solid var(--line);
   background: transparent;
   border-radius: var(--radius-sm);
-  padding: 7px 9px;
-  font-size: 14px;
+  padding: 7px 10px;
+  font-size: 12.5px;
   color: var(--ink-soft);
   transition:
     border-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    transform 0.1s ease;
 }
-.sideToggle:hover {
+.sideToggle:hover,
+.iconBtn:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+.sideToggle:active,
+.iconBtn:active {
+  transform: scale(0.95);
 }
 
 .titleInput {
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   font-family: var(--font-display);
@@ -114,18 +96,7 @@
   font-size: 12.5px;
   color: var(--muted);
   white-space: nowrap;
-  transition: color 0.2s ease;
 }
-
-.spinIcon {
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .saveStatus[data-state="saving"] {
   animation: softPulse 1.1s ease-in-out infinite;
 }
@@ -136,142 +107,165 @@
 .saveStatus[data-state="error"] {
   color: var(--danger);
 }
+.spinIcon {
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 @keyframes savedPop {
   from {
     opacity: 0;
     transform: translateY(-2px) scale(0.9);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
-.iconBtn {
+.shareBtn,
+.glance,
+.exportBtn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  border: 1px solid var(--line);
-  background: transparent;
-  border-radius: var(--radius-sm);
-  padding: 7px 10px;
-  font-size: 12.5px;
-  color: var(--ink-soft);
-  transition:
-    border-color 0.15s ease,
-    transform 0.1s ease;
-}
-.iconBtn:hover {
-  border-color: var(--accent);
-  transform: translateY(-1px);
-}
-
-.shareBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 16px;
-  border: none;
-  background: var(--gradient-accent);
-  color: var(--canvas);
+  padding: 8px 14px;
   border-radius: var(--radius-sm);
   white-space: nowrap;
   transition:
-    opacity 0.15s ease,
     transform 0.12s var(--ease-spring),
-    box-shadow 0.15s ease;
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.shareBtn {
+  border: none;
+  background: var(--gradient-accent);
+  color: var(--canvas);
 }
 .shareBtn:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
-  opacity: 0.95;
 }
-
-.glance {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 6;
-}
+.glance,
 .exportBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 14px;
   border: 1px solid var(--line);
   background: transparent;
-  border-radius: var(--radius-sm);
   color: var(--ink);
-  white-space: nowrap;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    transform 0.1s ease;
 }
-.exportBtn:active {
-  transform: scale(0.96);
-}
+.glance:hover,
 .exportBtn:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
-
-.body {
-  display: flex;
-  align-items: flex-start;
+.glance:active,
+.exportBtn:active {
+  transform: scale(0.96);
 }
 
-/*
- * WYSIWYG: the page is always laid out at 794 px internally and is
- * visually scaled by the <Editor /> component (via transform: scale()).
- * We must NOT clip it here — otherwise on narrow viewports the right
- * half of the page would be invisible while the PDF still shows it.
- */
+.body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
 .canvasArea {
   flex: 1;
   min-width: 0;
-  padding: 0 6px 60px;
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: auto;
+  padding: 0 6px 140px;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, #ece8f8 0%, transparent 60%),
+    var(--paper);
 }
 
-@media (max-width: 720px) {
-  .sideToggle {
-    display: none;
-  }
+/* Floating undo / redo / zoom cluster */
+.fab {
+  position: fixed;
+  right: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  animation: springIn 0.3s var(--ease-spring);
+}
+.fab button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  transition:
+    background 0.12s ease,
+    transform 0.1s ease;
+}
+.fab button:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+.fab button:active:not(:disabled) {
+  transform: scale(0.9);
+}
+.fab button:disabled {
+  opacity: 0.35;
+}
+.fabSep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  margin: 0 3px;
+}
+.fabLabel {
+  min-width: 40px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
 
+@media (max-width: 860px) {
   .topbar {
+    flex-wrap: wrap;
     padding: 10px 12px;
     gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .body {
-    overflow-y: auto;
-  }
-  .back {
-    font-size: 12px;
   }
   .titleInput {
-    font-size: 15px;
-    flex-basis: 100%;
     order: 5;
+    flex-basis: 100%;
+    font-size: 15px;
   }
   .saveStatus {
     display: none;
   }
-  .shareBtn,
-  .exportBtn {
-    font-size: 12px;
-    padding: 6px 10px;
+  .btnLabel,
+  .backLabel {
+    display: none;
   }
-  .canvasArea {
-    padding: 0 4px 40px;
+  .shareBtn,
+  .glance,
+  .exportBtn {
+    padding: 8px 10px;
+  }
+  .fab {
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 480px) {
+  .fabLabel {
+    display: none;
   }
 }

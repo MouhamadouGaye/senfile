@@ -26,7 +26,15 @@ function buildOutline(editor: Editor): OutlineItem[] {
 // barre d'outils, toutes deux fixes.
 const SCROLL_SPY_THRESHOLD = 140;
 
-export default function OutlinePanel({ editor, visible }: { editor: Editor; visible: boolean }) {
+export default function OutlinePanel({
+  editor,
+  visible,
+  onClose,
+}: {
+  editor: Editor;
+  visible: boolean;
+  onClose: () => void;
+}) {
   const [items, setItems] = useState<OutlineItem[]>([]);
   const [activePos, setActivePos] = useState<number | null>(null);
 
@@ -81,7 +89,12 @@ export default function OutlinePanel({ editor, visible }: { editor: Editor; visi
 
   function goTo(pos: number) {
     setActivePos(pos);
-    editor.chain().focus().setTextSelection(pos + 1).scrollIntoView().run();
+    editor
+      .chain()
+      .focus()
+      .setTextSelection(pos + 1)
+      .scrollIntoView()
+      .run();
   }
 
   if (!visible) return null;
@@ -90,7 +103,10 @@ export default function OutlinePanel({ editor, visible }: { editor: Editor; visi
     <aside className={styles.panel}>
       <h2 className={styles.title}>Structure</h2>
       {items.length === 0 ? (
-        <p className={styles.empty}>Ajoutez des titres (Titre 1, 2, 3) pour voir apparaître le plan du document.</p>
+        <p className={styles.empty}>
+          Ajoutez des titres (Titre 1, 2, 3) pour voir apparaître le plan du
+          document.
+        </p>
       ) : (
         <nav className={styles.list}>
           {items.map((item) => (

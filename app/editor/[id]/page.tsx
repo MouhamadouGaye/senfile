@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Editor as TiptapEditor } from "@tiptap/react";
-import { api, Comment, Role, User } from "@/lib/api";
+import { api, Comment, Role } from "@/lib/api";
 import Toolbar from "@/components/Toolbar";
 import Editor from "@/components/Editor";
 import OutlinePanel from "@/components/OutlinePanel";
@@ -13,6 +13,20 @@ import CommentComposer from "@/components/CommentComposer";
 import CommentDetailModal from "@/components/CommentDetailModal";
 import ShareModal from "@/components/ShareModal";
 import PdfPreviewModal from "@/components/PdfPreviewModal";
+import ObjectsLayer, { type Ghost } from "@/components/ObjectLayer";
+import type { Margins } from "@/components/MarginRuler";
+import {
+  PageObject,
+  ShapeKind,
+  SHAPE_MIME,
+  splitContent,
+  pageHeightFor,
+  objectFromSpec,
+  placeCentered,
+  clientToPage,
+  loadImageSize,
+  PAGE_W,
+} from "@/lib/objets";
 import {
   ArrowLeft,
   PanelLeft,
@@ -24,25 +38,25 @@ import {
   Check,
   Loader2,
   AlertCircle,
+  Undo2,
+  Redo2,
+  Minus,
+  Plus,
+  Maximize,
 } from "lucide-react";
 import selectionStyles from "@/components/selection-bubble.module.css";
 import styles from "./editorpage.module.css";
-import {
-  makeImage,
-  makeShape,
-  PageObject,
-  ShapeKind,
-  splitContent,
-} from "@/lib/objets";
-import ObjectsLayer from "@/components/ObjectLayer";
-import type { Margins } from "@/components/MarginRuler";
-import type { JSONContent } from "@tiptap/core";
 
 type SaveState = "saved" | "saving" | "error" | "idle";
+type Payload = { title?: string; content?: any };
+
+const getPage = () =>
+  document.querySelector<HTMLElement>("[data-page-surface]");
 
 export default function EditorPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState<any>(null);
   const [role, setRole] = useState<Role>("owner");
@@ -54,15 +68,12 @@ export default function EditorPage() {
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [loading, setLoading] = useState(true);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingPayloadRef = useRef<{ title?: string; content?: any } | null>(
-    null,
-  );
+  const pendingPayloadRef = useRef<Payload | null>(null);
 
   const [outlineVisible, setOutlineVisible] = useState(true);
   const [commentsVisible, setCommentsVisible] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [shareOpen, setShareOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
   const [detailCommentId, setDetailCommentId] = useState<string | null>(null);
   const [composer, setComposer] = useState<{
     quotedText: string;
@@ -73,20 +84,26 @@ export default function EditorPage() {
     y: number;
   } | null>(null);
 
-  const [previewDoc, setPreviewDoc] = useState<PageObject[]>([]);
-
-  // state
   const [objects, setObjects] = useState<PageObject[]>([]);
   const objectsRef = useRef<PageObject[]>([]);
   const editorJsonRef = useRef<any>(null);
-
   const [margins, setMargins] = useState<Margins>({ left: 72, right: 72 });
   const marginsRef = useRef<Margins>({ left: 72, right: 72 });
+
+  const [zoom, setZoom] = useState(1);
+  const [ghost, setGhost] = useState<Ghost | null>(null);
+  const [, bump] = useState(0);
+  const pastRef = useRef<PageObject[][]>([]);
+  const futureRef = useRef<PageObject[][]>([]);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState("");
+  const [previewObjects, setPreviewObjects] = useState<PageObject[]>([]);
   const [autoPrint, setAutoPrint] = useState(false);
-  const [username, setUsername] = useState<String>("");
 
   const isReadOnly = role === "viewer";
 
+  /* ------------------------------ loading ------------------------------ */
   useEffect(() => {
     (async () => {
       try {
@@ -94,24 +111,20 @@ export default function EditorPage() {
           api.getDocument(params.id),
           api.me(),
         ]);
-
         const m = doc.content?.margins;
         if (m && Number.isFinite(m.left) && Number.isFinite(m.right)) {
-          marginsRef.current = m;
-          setMargins(m);
+          marginsRef.current = { left: m.left, right: m.right };
+          setMargins({ left: m.left, right: m.right });
         }
-
         const { doc: d, objects: objs } = splitContent(doc.content);
         setContent(d);
         editorJsonRef.current = d;
         objectsRef.current = objs;
         setObjects(objs);
         setTitle(doc.title);
-        // setContent(doc.content);
         setRole(doc.role || "owner");
         setIsPublic(doc.is_public || false);
         setCurrentUserId(me.id);
-        setUsername(me.name);
       } catch {
         router.push("/dashboard");
       } finally {
@@ -121,15 +134,7 @@ export default function EditorPage() {
   }, [params.id, router]);
 
   useEffect(() => {
-    // Sur mobile, le document seul suffit par défaut : on masque la structure
-    // pour laisser toute la place à l'écriture.
-    if (typeof window !== "undefined" && window.innerWidth <= 720) {
-      setOutlineVisible(false);
-    }
-
-    if (typeof window !== "undefined" && window.innerWidth <= 720) {
-      setOutlineVisible(false);
-    }
+    if (window.innerWidth <= 720) setOutlineVisible(false);
   }, []);
 
   useEffect(() => {
@@ -139,48 +144,25 @@ export default function EditorPage() {
       .catch(() => {});
   }, [params.id]);
 
-  // Bulle flottante "💬" qui apparaît automatiquement dès qu'une sélection
-  // de texte non vide existe — plus rapide que d'aller chercher un bouton
-  // dans la barre d'outils à chaque suggestion.
   useEffect(() => {
     if (!editorInstance) return;
-    function onSelectionUpdate() {
+    function onSel() {
       const { from, to } = editorInstance!.state.selection;
-      if (from === to) {
-        setSelectionBubble(null);
-        return;
-      }
+      if (from === to) return setSelectionBubble(null);
       try {
-        const coords = editorInstance!.view.coordsAtPos(to);
-        setSelectionBubble({ x: coords.left, y: coords.top - 10 });
+        const c = editorInstance!.view.coordsAtPos(to);
+        setSelectionBubble({ x: c.left, y: c.top - 10 });
       } catch {
         setSelectionBubble(null);
       }
     }
-    editorInstance.on("selectionUpdate", onSelectionUpdate);
+    editorInstance.on("selectionUpdate", onSel);
     return () => {
-      editorInstance.off("selectionUpdate", onSelectionUpdate);
+      editorInstance.off("selectionUpdate", onSel);
     };
   }, [editorInstance]);
 
-  const scheduleSave = useCallback(
-    (payload: { title?: string; content?: any }) => {
-      if (isReadOnly) return;
-      setSaveState("saving");
-      pendingPayloadRef.current = { ...pendingPayloadRef.current, ...payload };
-      if (saveTimeout.current) clearTimeout(saveTimeout.current);
-      saveTimeout.current = setTimeout(() => {
-        flushSave();
-      }, 800);
-    },
-    [params.id, isReadOnly],
-  );
-
-  // Force l'envoi immédiat de la sauvegarde en attente : indispensable
-  // avant un export/aperçu, sinon le serveur (qui lit la base de données)
-  // peut encore avoir l'ancienne position d'une image ou d'une forme
-  // glissée à l'instant — le debounce de 800ms n'aurait pas encore eu le
-  // temps de partir.
+  /* ------------------------------- saving ------------------------------- */
   const flushSave = useCallback(async () => {
     if (saveTimeout.current) {
       clearTimeout(saveTimeout.current);
@@ -197,14 +179,21 @@ export default function EditorPage() {
     }
   }, [params.id, isReadOnly]);
 
-  function handleTitleChange(value: string) {
-    setTitle(value);
-    scheduleSave({ title: value });
-  }
+  const scheduleSave = useCallback(
+    (payload: Payload) => {
+      if (isReadOnly) return;
+      setSaveState("saving");
+      pendingPayloadRef.current = { ...pendingPayloadRef.current, ...payload };
+      if (saveTimeout.current) clearTimeout(saveTimeout.current);
+      saveTimeout.current = setTimeout(() => flushSave(), 800);
+    },
+    [isReadOnly, flushSave],
+  );
 
-  // function handleContentUpdate(json: any) {
-  //   scheduleSave({ content: json });
-  // }
+  function handleTitleChange(v: string) {
+    setTitle(v);
+    scheduleSave({ title: v });
+  }
 
   function pushContent() {
     scheduleSave({
@@ -215,97 +204,180 @@ export default function EditorPage() {
       },
     });
   }
-
+  function handleContentUpdate(json: any) {
+    editorJsonRef.current = json;
+    pushContent();
+  }
+  function applyObjects(next: PageObject[]) {
+    objectsRef.current = next;
+    setObjects(next);
+    pushContent();
+  }
   function handleMarginsChange(next: Margins) {
     marginsRef.current = next;
     setMargins(next);
     pushContent();
   }
-  function handleContentUpdate(json: any) {
-    editorJsonRef.current = json;
-    pushContent();
-  }
-  function handleObjectsChange(next: PageObject[]) {
-    objectsRef.current = next;
-    setObjects(next);
-    pushContent();
-  }
 
+  /* ------------------------ undo / redo (objects) ------------------------ */
+  function snapshot() {
+    pastRef.current.push(objectsRef.current);
+    if (pastRef.current.length > 100) pastRef.current.shift();
+    futureRef.current = [];
+    bump((n) => n + 1);
+  }
+  function undo() {
+    const prev = pastRef.current.pop();
+    if (!prev) return;
+    futureRef.current.push(objectsRef.current);
+    applyObjects(prev);
+    bump((n) => n + 1);
+  }
+  function redo() {
+    const next = futureRef.current.pop();
+    if (!next) return;
+    pastRef.current.push(objectsRef.current);
+    applyObjects(next);
+    bump((n) => n + 1);
+  }
+  const undoRef = useRef(undo);
+  const redoRef = useRef(redo);
+  undoRef.current = undo;
+  redoRef.current = redo;
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (
+        (e.target as HTMLElement).closest?.(
+          ".ProseMirror,input,textarea,[contenteditable='true']",
+        )
+      )
+        return;
+      const k = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && k === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redoRef.current();
+        else undoRef.current();
+      } else if ((e.ctrlKey || e.metaKey) && k === "y") {
+        e.preventDefault();
+        redoRef.current();
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, []);
+
+  /* ------------------------ placing objects (exact) ------------------------ */
   const nextZ = () =>
     objectsRef.current.reduce((m, o) => Math.max(m, o.z), 0) + 1;
 
-  const PAGE_W = 794;
-  const PAGE_H = 1123;
-  const SAFE = 30;
-
-  function spawnPoint(w: number, h: number) {
-    const page = document.querySelector(
-      "[data-page-surface]",
-    ) as HTMLElement | null;
-    if (!page) return { x: 80, y: 80 };
-    const s = parseFloat(page.dataset.scale || "1") || 1;
-    const pr = page.getBoundingClientRect();
-    const scroller = page.closest("[data-canvas-scroll]") as HTMLElement | null;
-    const sr = scroller?.getBoundingClientRect();
-
-    const visTop = Math.max(0, (Math.max(0, sr?.top ?? 0) - pr.top) / s);
-    const visBottom = Math.min(
-      pr.height / s,
-      (Math.min(window.innerHeight, sr?.bottom ?? window.innerHeight) -
-        pr.top) /
-        s,
-    );
-
+  /** Centre of the visible part of the sheet, in page coordinates. */
+  function viewCenter() {
+    const page = getPage();
+    if (!page) return { x: PAGE_W / 2, y: 300 };
+    const sc = document
+      .querySelector("[data-canvas-scroll]")
+      ?.getBoundingClientRect();
+    const cx = sc ? (sc.left + sc.right) / 2 : window.innerWidth / 2;
+    const cy = sc
+      ? (Math.max(sc.top, 0) + Math.min(sc.bottom, window.innerHeight)) / 2
+      : window.innerHeight / 2;
     const n = (objectsRef.current.length % 6) * 18;
-    let y = visTop + (visBottom - visTop - h) / 2 + n;
-    const idx = Math.max(
-      0,
-      Math.floor((visTop + (visBottom - visTop) / 2) / PAGE_H),
+    const p = clientToPage(page, cx, cy);
+    return { x: p.x + n, y: p.y + n };
+  }
+
+  function addAt(
+    spec: Parameters<typeof objectFromSpec>[0],
+    at?: { x: number; y: number },
+  ) {
+    snapshot();
+    const o = placeCentered(objectFromSpec(spec, nextZ()), at ?? viewCenter());
+    applyObjects([...objectsRef.current, o]);
+  }
+
+  function addImage(src: string, w: number, h: number) {
+    addAt({ kind: "image", src, w, h });
+  }
+  function addShape(shape: ShapeKind, square = false) {
+    addAt({ kind: "shape", shape, square });
+  }
+
+  async function uploadAndPlace(file: File, at?: { x: number; y: number }) {
+    try {
+      const asset = await api.uploadImage(file);
+      const src = api.fileUrl(asset.url);
+      const { w, h } = await loadImageSize(src);
+      addAt({ kind: "image", src, w, h }, at);
+    } catch {
+      alert("Échec de l'envoi de l'image");
+    }
+  }
+  const uploadRef = useRef(uploadAndPlace);
+  uploadRef.current = uploadAndPlace;
+
+  // Ctrl+V with an image in the clipboard
+  useEffect(() => {
+    const h = (e: ClipboardEvent) => {
+      const f = [...(e.clipboardData?.files ?? [])].find((x) =>
+        x.type.startsWith("image/"),
+      );
+      if (!f || isReadOnly) return;
+      e.preventDefault();
+      uploadRef.current(f);
+    };
+    window.addEventListener("paste", h);
+    return () => window.removeEventListener("paste", h);
+  }, [isReadOnly]);
+
+  /* ---------------------- drag & drop onto the page ---------------------- */
+  function acceptsDrag(e: React.DragEvent) {
+    const t = Array.from(e.dataTransfer.types);
+    return !isReadOnly && (t.includes(SHAPE_MIME) || t.includes("Files"));
+  }
+
+  function onDragOver(e: React.DragEvent) {
+    if (!acceptsDrag(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    const page = getPage();
+    if (!page) return;
+    const p = clientToPage(page, e.clientX, e.clientY);
+    const isShape = Array.from(e.dataTransfer.types).includes(SHAPE_MIME);
+    const w = isShape ? 240 : 260;
+    const h = isShape ? 140 : 190;
+    setGhost({ x: p.x - w / 2, y: p.y - h / 2, w, h });
+  }
+
+  function onDragLeave(e: React.DragEvent) {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) setGhost(null);
+  }
+
+  async function onDrop(e: React.DragEvent) {
+    setGhost(null);
+    if (!acceptsDrag(e)) return;
+    e.preventDefault();
+    const page = getPage();
+    if (!page) return;
+    const p = clientToPage(page, e.clientX, e.clientY);
+
+    const raw = e.dataTransfer.getData(SHAPE_MIME);
+    if (raw) {
+      try {
+        const { shape, square } = JSON.parse(raw);
+        addAt({ kind: "shape", shape, square: !!square }, p);
+      } catch {}
+      return;
+    }
+    const files = Array.from(e.dataTransfer.files).filter((f) =>
+      f.type.startsWith("image/"),
     );
-    const lo = idx * PAGE_H + SAFE;
-    const hi = (idx + 1) * PAGE_H - SAFE - h;
-    y = Math.max(lo, Math.min(y, Math.max(lo, hi)));
-
-    return { x: Math.max(20, (PAGE_W - w) / 2 + n), y: Math.round(y) };
+    for (let i = 0; i < files.length; i++) {
+      await uploadAndPlace(files[i], { x: p.x + i * 28, y: p.y + i * 28 });
+    }
   }
 
-  function addImage(src: string, nw: number, nh: number) {
-    const w = Math.min(360, nw),
-      h = (w * nh) / nw;
-    const p = spawnPoint(w, h);
-    handleObjectsChange([
-      ...objectsRef.current,
-      makeImage(src, p.x, p.y, w, h, nextZ()),
-    ]);
-  }
-
-  function addShape(kind: ShapeKind, square = false) {
-    const p = spawnPoint(240, 140);
-    handleObjectsChange([
-      ...objectsRef.current,
-      makeShape(kind, p.x, p.y, nextZ(), square),
-    ]);
-  }
-
-  // async function handleExportPdf() {
-  //   await flushSave();
-  //   api.exportPdf(params.id, title).catch((e) => alert(e.message));
-  // }
-
-  // async function handleOpenPreview() {
-  //   await flushSave();
-  //   setPreviewOpen(true);
-  // }
-  // async function openPreview(print: boolean) {
-  //   await flushSave();
-  //   // Live snapshot of the text, straight from the editor
-  //   setPreviewDoc(editorInstance?.getJSON() ?? editorJsonRef.current ?? null);
-  //   setAutoPrint(print);
-  //   setPreviewOpen(true);
-  // }
-  const [previewHtml, setPreviewHtml] = useState("");
-
-  /** Copie propre du DOM réel de l'éditeur (même rendu que l'écran). */
+  /* --------------------------- preview / export --------------------------- */
   function snapshotHtml(): string {
     const dom = editorInstance?.view.dom as HTMLElement | undefined;
     if (!dom) return "";
@@ -333,28 +405,25 @@ export default function EditorPage() {
   async function openPreview(print: boolean) {
     await flushSave();
     setPreviewHtml(snapshotHtml());
-    setPreviewDoc([...objectsRef.current]);
+    setPreviewObjects([...objectsRef.current]);
     setAutoPrint(print);
     setPreviewOpen(true);
   }
-  const handleOpenPreview = () => openPreview(false);
-  const handleExportPdf = () => openPreview(true);
 
+  /* ------------------------------- comments ------------------------------- */
   function openComposerFromSelection() {
     if (!editorInstance) return;
     const { from, to } = editorInstance.state.selection;
-    if (from === to) {
-      alert("Sélectionnez d'abord le passage à commenter.");
-      return;
-    }
+    if (from === to)
+      return alert("Sélectionnez d'abord le passage à commenter.");
     const quotedText = editorInstance.state.doc.textBetween(from, to, " ");
-    const coords = editorInstance.view.coordsAtPos(to);
+    const c = editorInstance.view.coordsAtPos(to);
     setSelectionBubble(null);
     setComposer({
       quotedText,
       position: {
-        x: Math.min(coords.left, window.innerWidth - 300),
-        y: coords.bottom + 8,
+        x: Math.min(c.left, window.innerWidth - 300),
+        y: c.bottom + 8,
       },
     });
   }
@@ -368,40 +437,30 @@ export default function EditorPage() {
     );
     editorInstance.chain().setCommentMark(created.id).run();
     setComposer(null);
-    setComments((prev) => [...prev, created]);
+    setComments((p) => [...p, created]);
     setCommentsVisible(true);
   }
 
-  function openCommentDetail(commentId: string) {
-    setDetailCommentId(commentId);
+  async function handleResolve(c: Comment, resolved: boolean) {
+    const u = await api.resolveComment(params.id, c.id, resolved);
+    setComments((p) => p.map((x) => (x.id === c.id ? u : x)));
   }
 
-  async function handleResolve(comment: Comment, resolved: boolean) {
-    const updated = await api.resolveComment(params.id, comment.id, resolved);
-    setComments((prev) => prev.map((c) => (c.id === comment.id ? updated : c)));
-  }
-
-  async function handleDelete(comment: Comment) {
-    await api.deleteComment(params.id, comment.id);
-    editorInstance?.chain().unsetCommentMarkById(comment.id).run();
-    setComments((prev) => prev.filter((c) => c.id !== comment.id));
+  async function handleDelete(c: Comment) {
+    await api.deleteComment(params.id, c.id);
+    editorInstance?.chain().unsetCommentMarkById(c.id).run();
+    setComments((p) => p.filter((x) => x.id !== c.id));
     setDetailCommentId(null);
   }
 
-  // Clic sur un passage surligné dans le document : ouvre directement le
-  // popup de détail de la suggestion correspondante (comme un clic sur la
-  // puce dans le panneau de droite).
   function handleCanvasClick(e: React.MouseEvent) {
-    const target = (e.target as HTMLElement).closest("[data-comment-id]");
-    if (target) {
-      const id = target.getAttribute("data-comment-id");
-      if (id) openCommentDetail(id);
-    }
+    const t = (e.target as HTMLElement).closest("[data-comment-id]");
+    const id = t?.getAttribute("data-comment-id");
+    if (id) setDetailCommentId(id);
   }
 
-  if (loading) {
+  if (loading)
     return <div className={styles.loading}>Chargement du document…</div>;
-  }
 
   const saveLabel: Record<SaveState, string> = {
     idle: "",
@@ -416,6 +475,7 @@ export default function EditorPage() {
     error: <AlertCircle size={13} />,
   };
 
+  const unresolved = comments.filter((c) => !c.resolved).length;
   const detailComment = comments.find((c) => c.id === detailCommentId) || null;
   const canDeleteDetail =
     !!detailComment &&
@@ -425,8 +485,8 @@ export default function EditorPage() {
     <div className={styles.wrap}>
       <div className={styles.topbar}>
         <Link href="/dashboard" className={styles.back}>
-          <ArrowLeft size={15} />
-          Documents
+          <ArrowLeft size={15} />{" "}
+          <span className={styles.backLabel}>Documents</span>
         </Link>
         <button
           className={styles.sideToggle}
@@ -454,31 +514,25 @@ export default function EditorPage() {
           title="Suggestions"
         >
           <MessageSquare size={16} />
-          {comments.filter((c) => !c.resolved).length > 0 &&
-            ` (${comments.filter((c) => !c.resolved).length})`}
+          {unresolved > 0 && ` (${unresolved})`}
         </button>
         {role === "owner" && (
           <button
             className={styles.shareBtn}
             onClick={() => setShareOpen(true)}
           >
-            <Share2 size={14} /> Partager
+            <Share2 size={14} />{" "}
+            <span className={styles.btnLabel}>Partager</span>
           </button>
         )}
-        <button className={styles.glance} onClick={handleOpenPreview}>
-          <Eye size={14} /> Aperçu
+        <button className={styles.glance} onClick={() => openPreview(false)}>
+          <Eye size={14} /> <span className={styles.btnLabel}>Aperçu</span>
         </button>
-        <button className={styles.exportBtn} onClick={handleExportPdf}>
-          <Download size={14} /> Exporter
+        <button className={styles.exportBtn} onClick={() => openPreview(true)}>
+          <Download size={14} />{" "}
+          <span className={styles.btnLabel}>Exporter</span>
         </button>
-        <h3 className={styles.userName}>{username}</h3>
       </div>
-
-      {/* <Toolbar
-        editor={editorInstance}
-        onComment={openComposerFromSelection}
-        readOnly={isReadOnly}
-      /> */}
 
       <Toolbar
         editor={editorInstance}
@@ -490,10 +544,21 @@ export default function EditorPage() {
 
       <div className={styles.body}>
         {editorInstance && (
-          <OutlinePanel editor={editorInstance} visible={outlineVisible} />
+          <OutlinePanel
+            editor={editorInstance}
+            visible={outlineVisible}
+            onClose={() => setOutlineVisible(false)}
+          />
         )}
 
-        <div className={styles.canvasArea} onClick={handleCanvasClick}>
+        <div
+          className={styles.canvasArea}
+          data-canvas-scroll
+          onClick={handleCanvasClick}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+        >
           <Editor
             content={content}
             onReady={setEditorInstance}
@@ -501,12 +566,19 @@ export default function EditorPage() {
             editable={!isReadOnly}
             margins={margins}
             onMarginsChange={handleMarginsChange}
+            minHeight={pageHeightFor(objects)}
+            zoom={zoom}
           >
-            <ObjectsLayer
-              objects={objects}
-              onChange={handleObjectsChange}
-              editable={!isReadOnly}
-            />
+            {(scale) => (
+              <ObjectsLayer
+                objects={objects}
+                onChange={applyObjects}
+                onSnapshot={snapshot}
+                editable={!isReadOnly}
+                zoom={scale}
+                ghost={ghost}
+              />
+            )}
           </Editor>
         </div>
 
@@ -514,9 +586,45 @@ export default function EditorPage() {
           comments={comments}
           visible={commentsVisible}
           onClose={() => setCommentsVisible(false)}
-          onOpen={openCommentDetail}
+          onOpen={setDetailCommentId}
         />
       </div>
+
+      {!isReadOnly && (
+        <div className={styles.fab}>
+          <button
+            onClick={undo}
+            disabled={!pastRef.current.length}
+            title="Annuler (Ctrl+Z)"
+          >
+            <Undo2 size={16} />
+          </button>
+          <button
+            onClick={redo}
+            disabled={!futureRef.current.length}
+            title="Rétablir (Ctrl+Maj+Z)"
+          >
+            <Redo2 size={16} />
+          </button>
+          <span className={styles.fabSep} />
+          <button
+            onClick={() => setZoom((z) => Math.max(0.6, +(z - 0.2).toFixed(2)))}
+            title="Réduire"
+          >
+            <Minus size={16} />
+          </button>
+          <span className={styles.fabLabel}>{Math.round(zoom * 100)}%</span>
+          <button
+            onClick={() => setZoom((z) => Math.min(2, +(z + 0.2).toFixed(2)))}
+            title="Agrandir"
+          >
+            <Plus size={16} />
+          </button>
+          <button onClick={() => setZoom(1)} title="Ajuster à l'écran">
+            <Maximize size={15} />
+          </button>
+        </div>
+      )}
 
       {selectionBubble && !composer && (
         <button
@@ -542,7 +650,7 @@ export default function EditorPage() {
         <CommentDetailModal
           comment={detailComment}
           canDelete={canDeleteDetail}
-          onResolve={(resolved) => handleResolve(detailComment, resolved)}
+          onResolve={(r) => handleResolve(detailComment, r)}
           onDelete={() => handleDelete(detailComment)}
           onClose={() => setDetailCommentId(null)}
         />
@@ -561,7 +669,7 @@ export default function EditorPage() {
         <PdfPreviewModal
           title={title}
           html={previewHtml}
-          objects={previewDoc}
+          objects={previewObjects}
           margins={margins}
           autoPrint={autoPrint}
           onClose={() => {
