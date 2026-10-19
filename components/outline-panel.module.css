@@ -1,0 +1,162 @@
+.panel {
+  box-sizing: border-box;
+  padding: 22px 16px;
+  max-width: 300px;
+  min-width: 0;
+  flex-shrink: 0;
+  padding: 22px 16px;
+  border-right: 1px solid var(--line);
+  background: var(--canvas);
+  height: calc(100vh - 110px);
+  position: sticky;
+  top: 110px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: slideInLeft 0.18s ease;
+}
+
+.title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 14px;
+  padding: 0 8px;
+}
+
+.empty {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 0 8px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.item {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  font-size: 13.5px;
+  padding: 7px 8px;
+  border: none;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.item:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.item[data-active] {
+  border-left-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--paper);
+}
+
+.item[data-level="1"] {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.item[data-level="2"] {
+  padding-left: 18px;
+}
+
+.item[data-level="3"] {
+  padding-left: 28px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Tablets and small devices */
+@media (max-width: 720px) {
+  .panel {
+    position: fixed;
+    top: 57px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 57px);
+    padding: 16px 12px;
+    border-right: none;
+    z-index: 45;
+    overflow-y: auto;
+    overflow-x: hidden;
+    animation: fadeIn 0.15s ease;
+  }
+
+  .title {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+
+  .item {
+    font-size: 14px;
+    padding: 10px 8px;
+  }
+
+  .item[data-level="2"] {
+    padding-left: 18px;
+  }
+
+  .item[data-level="3"] {
+    padding-left: 28px;
+    font-size: 13px;
+  }
+}
+
+/* Extra-small phones */
+@media (max-width: 480px) {
+  .panel {
+    top: 57px;
+    max-height: calc(100dvh - 57px);
+    padding: 12px 10px;
+  }
+
+  .item {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

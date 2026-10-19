@@ -1,0 +1,222 @@
+.bar {
+  position: sticky;
+  top: 57px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 24px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.divider {
+  width: 1px;
+  height: 22px;
+  background: var(--line);
+  margin: 0 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  min-width: 34px;
+  min-height: 34px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.btn:active {
+  transform: scale(0.94);
+}
+
+.btn:hover {
+  background: var(--paper);
+}
+
+.btn[data-active="true"] {
+  background: var(--accent);
+  color: var(--canvas);
+  animation: activatePop 0.18s var(--ease-spring);
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  transform: none;
+}
+
+.btn:disabled:hover {
+  background: transparent;
+}
+
+@keyframes activatePop {
+  from {
+    transform: scale(0.85);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.btnDanger:hover {
+  background: rgba(161, 61, 61, 0.1);
+  color: var(--danger);
+}
+
+.colorDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  padding: 0;
+}
+
+.tableControls {
+  animation: slideIn 0.16s ease;
+}
+
+.tableLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 0 6px 0 2px;
+}
+
+.readOnlyNote {
+  font-size: 12.5px;
+  color: var(--muted);
+  padding: 0 8px;
+}
+
+.cellColorPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 130px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 20px rgba(28, 27, 34, 0.14);
+  padding: 8px;
+  z-index: 30;
+  animation: popMenu 0.14s ease;
+}
+
+.cellColorSwatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+
+.cellColorSwatch:hover {
+  transform: scale(1.15);
+}
+
+.cellColorReset {
+  width: 100%;
+  font-size: 11.5px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+@keyframes popMenu {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.mobileBar {
+  position: sticky;
+  top: 57px;
+  z-index: 60;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--line);
+}
+
+.mobileRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.moreBtn {
+  margin-left: auto;
+  font-size: 18px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+}
+
+.mobileMenu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 0 12px 12px;
+  animation: slideIn 0.14s ease;
+}
+
+.mobileMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 10px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  text-align: left;
+}
+
+.mobileMenuItem[data-active="true"] {
+  background: var(--accent);
+  color: var(--canvas);
+  border-color: var(--accent);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

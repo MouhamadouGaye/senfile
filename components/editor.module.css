@@ -1,0 +1,139 @@
+.obj {
+  transition: box-shadow 0.2s ease;
+  animation: pop 0.26s cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+.obj[data-hover="true"] {
+  box-shadow: 0 4px 18px rgba(75, 63, 114, 0.18);
+}
+.obj[data-selected="true"] {
+  box-shadow: 0 10px 30px rgba(75, 63, 114, 0.25);
+}
+
+.handle {
+  animation: handlePop 0.22s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  transition: transform 0.1s ease;
+}
+.handle:hover {
+  transform: scale(1.25);
+}
+.stem,
+.knob {
+  animation: handlePop 0.26s ease both;
+}
+
+.ghost {
+  position: absolute;
+  z-index: 80;
+  pointer-events: none;
+  border: 2px dashed #4b3f72;
+  border-radius: 12px;
+  background: rgba(75, 63, 114, 0.08);
+  animation: ghostPulse 1s ease-in-out infinite;
+}
+
+.guide {
+  position: absolute;
+  background: #ff3d71;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.bar {
+  position: fixed;
+  z-index: 2000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100vw - 16px);
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid #e6e3ee;
+  border-radius: 12px;
+  box-shadow: 0 12px 34px rgba(30, 20, 70, 0.2);
+  box-sizing: border-box;
+  animation: barIn 0.2s ease both;
+}
+.bar button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #3b3358;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.bar button:hover {
+  background: #f1eefb;
+}
+.bar input[type="color"] {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  cursor: pointer;
+  background: none;
+}
+.bar input[type="range"] {
+  width: 64px;
+  accent-color: #4b3f72;
+}
+.sep {
+  width: 1px;
+  height: 20px;
+  background: #e6e3ee;
+}
+.danger {
+  color: #a13d3d;
+}
+.danger:hover {
+  background: #fbe3e3 !important;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.85;
+  }
+}
+@keyframes handlePop {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+@keyframes barIn {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+@keyframes ghostPulse {
+  50% {
+    background: rgba(75, 63, 114, 0.16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obj,
+  .handle,
+  .stem,
+  .knob,
+  .bar,
+  .ghost {
+    animation: none;
+  }
+}
+@media print {
+  .handle,
+  .stem,
+  .knob,
+  .bar,
+  .guide,
+  .ghost {
+    display: none !important;
+  }
+}

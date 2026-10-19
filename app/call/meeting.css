@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --ink: #14151f;
+  --ink-soft: #1b1c29;
+  --surface: #1e202d;
+  --surface-raised: #262838;
+  --line: #33354a;
+  --paper: #f2f0eb;
+  --muted: #9a9bae;
+  --accent: #5d5fef;
+  --accent-soft: #7f81f5;
+  --accent-dim: rgba(93, 95, 239, 0.16);
+  --warm: #ff8a5b;
+  --warm-dim: rgba(255, 138, 91, 0.16);
+  --mint: #4fd1a5;
+  --mint-dim: rgba(79, 209, 165, 0.16);
+  --danger: #ef5d6f;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 24px;
+  --radius-round: 999px;
+
+  --shadow-soft: 0 12px 40px rgba(6, 6, 14, 0.35);
+  --ring-focus: 0 0 0 3px var(--accent-dim);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.08;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+  border-radius: var(--radius-s);
+}
+
+/* Respecte les préférences de mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

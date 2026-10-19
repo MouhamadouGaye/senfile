@@ -1,0 +1,41 @@
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.stepBtn {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.stepBtn:hover {
+  background: var(--paper);
+}
+
+.stepBtn:active {
+  transform: scale(0.92);
+}
+
+.sizeTrigger {
+  min-width: 40px;
+  text-align: center;
+  font-size: 13px;
+  padding: 7px 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.sizeTrigger:hover {
+  background: var(--paper);
+  border-color: var(--line);
+}

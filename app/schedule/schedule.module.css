@@ -1,0 +1,212 @@
+.page {
+  min-height: 100vh;
+  padding: 0 32px 96px;
+}
+
+.nav {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backLink {
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--paper);
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.headline {
+  font-size: clamp(32px, 4vw, 44px);
+  margin-bottom: 12px;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 16px;
+  max-width: 52ch;
+  margin-bottom: 40px;
+}
+
+.form {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  padding: 36px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  padding: 12px 14px;
+  color: var(--paper);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 84px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.error {
+  font-size: 13px;
+  color: var(--danger);
+  margin-bottom: 16px;
+}
+
+.submitBtn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: var(--radius-round);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+.submitBtn:hover {
+  background: var(--accent-soft);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Confirmation */
+.confirm {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  padding: 40px;
+  text-align: left;
+}
+
+.confirmTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mint);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mint);
+}
+
+.confirmTitle {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.confirmMeta {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.linkRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.linkBox {
+  flex: 1;
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--paper);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.copyBtn {
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  color: var(--paper);
+  padding: 12px 18px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.copyBtn:hover {
+  border-color: var(--accent-soft);
+}
+
+.inviteRow {
+  display: flex;
+  gap: 10px;
+}
+
+.inviteRow input {
+  flex: 1;
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  padding: 12px 14px;
+  color: var(--paper);
+  font-size: 14px;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

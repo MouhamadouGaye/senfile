@@ -1,0 +1,122 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 27, 34, 0.4);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal {
+  width: 100%;
+  max-width: 400px;
+  background: var(--canvas);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  animation: scaleIn 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--canvas);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authorName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.date {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--accent);
+  border-left: 2px solid var(--gold);
+  padding-left: 10px;
+  margin-bottom: 14px;
+}
+
+.content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 20px;
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.resolveBtn {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+}
+
+.resolveBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.deleteBtn {
+  font-size: 12.5px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+}
+
+.deleteBtn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.closeBtn {
+  font-size: 12.5px;
+  padding: 8px 14px;
+  border: none;
+  background: var(--accent);
+  color: var(--canvas);
+  border-radius: var(--radius-sm);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
